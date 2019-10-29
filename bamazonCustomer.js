@@ -18,6 +18,7 @@ var connection = mysql.createConnection({
 connection.connect(function(err) {
   if (err) throw err;
   console.log("Connected as ID " + connection.threadId);
+  console.log("Welcome to Bamazon! Here are our products:")
 });
 
 
@@ -81,10 +82,10 @@ function executeOrder(item_id, qtyPurchased) {
     if (qtyPurchased <= res[0].stock_quantity) {
     var CartCost = res[0].price_dollars * qtyPurchased;
     console.log("Your order is in stock!");
-    console.log("You ordered " + qtyPurchased + res[0].product_name + "(s)");
+    console.log("You ordered " + qtyPurchased + " " + res[0].product_name + "(s)");
     console.log("The total cost of your order is $" + CartCost);
 
-    connection.query("UPDATE products SET stock_quantity = stock_quantity - " + qtyPurchased + "WHERE item_id = " + item_id);
+    connection.query("UPDATE products SET stock_quantity = stock_quantity - " + qtyPurchased + " WHERE item_id = " + item_id);
     }
      else {console.log("Cannot buy " + qtyPurchased + " of " + res[0].product_name + ". Insufficient quantity in stock.");
       };
