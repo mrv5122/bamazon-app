@@ -17,7 +17,7 @@ var connection = mysql.createConnection({
 
 connection.connect(function(err) {
   if (err) throw err;
-  console.log("Connected as ID" + connection.threadId);
+  console.log("Connected as ID " + connection.threadId);
 });
 
 
@@ -26,8 +26,8 @@ function showInventory() {
     connection.query(query, function(err,res) {
         if (err) throw err;
         var productTable = new Table ({
-          head: ["Item ID", "Product Name", "Category", "Price", "Stock Qty"],
-          colWidths: [12, 24, 20, 12, 15]
+          head: ["Item ID", "Product Name", "Category", "Price ($)", "Qty"],
+          colWidths: [10, 20, 15, 12, 10]
         });
         for (var i = 0; i < res.length; i++) {
           productTable.push(
@@ -56,13 +56,40 @@ function productSearch() {
     {
       name: "quantityDesired",
       type: "input",
-      message: "How many of this item would you like to purchase?"
+      message: "How many of this item would you like to purchase?",
+      validate: function(value) {
+        if (isNaN(value) === false) {
+          return true;
+        }
+        return false;
+      }
     }
   ])
-  .then(answer => {
-    item_id = answer.item_id;
-    qtyPurchase = answer.quantityDesired;
+  .then(answers => {
+    item_id = answers.itemID;
+    qtyPurchased = answers.quantityDesired;
+    executeOrder(item_id, qtyPurchased)
   });
  }
+
+function executeOrder(item_id, qtyPurchased) {
+  connection.query("Select * FROM products WHERE item_id = " + item_id, function(err, res) {
+    if (err) {
+      console.log(err);
+      throw err;
+    };
+    if (qtyPurchased <= res[0].stock_quantity) {
+    var CartCost = res[0].price_dollars * qtyPurchased;
+    console.log("Your order is in stock!");
+    console.log("You ordered " + qtyPurchased + res[0].product_name + "(s)");
+    console.log("The total cost of your order is $" + CartCost);
+
+    connection.query("UPDATE products SET stock_quantity = stock_quantity - " + qtyPurchased + "WHERE item_id = " + item_id);
+    }
+     else {console.log("Cannot buy " + qtyPurchased + " of " + res[0].product_name + ". Insufficient quantity in stock.");
+      };
+      showInventory();
+    })
+}
 
  showInventory();
