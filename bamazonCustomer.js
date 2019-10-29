@@ -1,6 +1,6 @@
 var mysql = require("mysql");
 var inquirer = require("inquirer");
-var conTable = require("console.table");
+var Table = require("cli-table");
 var connection = mysql.createConnection({
   host: "localhost",
 
@@ -17,18 +17,26 @@ var connection = mysql.createConnection({
 
 connection.connect(function(err) {
   if (err) throw err;
-  showInventory();
+  console.log("Connected as ID" + connection.threadId);
 });
 
 
 function showInventory() {
-    var query = "SELECT item_id, product_name, price_dollars FROM products";
+    var query = "SELECT * FROM products";
     connection.query(query, function(err,res) {
         if (err) throw err;
+        var productTable = new Table ({
+          head: ["Item ID", "Product Name", "Category", "Price", "Stock Qty"],
+          colWidths: [12, 24, 20, 12, 15]
+        });
         for (var i = 0; i < res.length; i++) {
-            console.log(res[i]);
+          productTable.push(
+            [res[i].item_id, res[i].product_name, res[i].department_name, res[i].price_dollars, res[i].stock_quantity]
+          );
         }
-    })
+      console.log(productTable.toString());
+      productSearch();
+    });
 }
 
 function productSearch() {
@@ -56,4 +64,5 @@ function productSearch() {
     qtyPurchase = answer.quantityDesired;
   });
  }
-productSearch();
+
+ showInventory();
