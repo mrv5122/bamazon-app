@@ -59,7 +59,7 @@ function supervisorOptions() {
         }
       });
   }
-
+//show table of products
   function showInventory() {
     var query = "SELECT * FROM products";
     connection.query(query, function(err,res) {
@@ -76,6 +76,26 @@ function supervisorOptions() {
       console.log(productTable.toString());
       supervisorOptions();
     });
+}
+
+//view low inventory
+function showLowInvent() {
+  var query = "SELECT * FROM products WHERE stock_quantity <= 50";
+  connection.query(query, function(err, res) {
+    if (err) throw err;
+    var lowInvTable = new Table ({
+      head:  ["Item ID", "Product Name", "Category", "Price ($)", "Qty"],
+      colWidths: [10, 20, 15, 12, 10]
+    });
+    for (var i = 0; i < res.length; i++) {
+      lowInvTable.push(
+        [res[i].item_id, res[i].product_name, res[i].department_name, res[i].price_dollars, res[i].stock_quantity]
+      );
+    }
+    console.log("Showing all items w/ stock quantity < 50")
+    console.log(lowInvTable.toString());
+    supervisorOptions();
+  })
 }
 
 supervisorOptions();
