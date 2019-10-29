@@ -1,38 +1,81 @@
-function runSearch() {
+var mysql = require("mysql");
+var inquirer = require("inquirer");
+var Table = require("cli-table");
+var connection = mysql.createConnection({
+  host: "localhost",
+
+  // Your port; if not 3306
+  port: 3306,
+
+  // Your username
+  user: "root",
+
+  // Your password
+  password: "Omicronf15",
+  database: "bamazon_DB"
+});
+
+connection.connect(function(err) {
+  if (err) throw err;
+  console.log("Connected as ID " + connection.threadId);
+  console.log("Welcome, Bamazon Supervisor")
+});
+
+function supervisorOptions() {
     inquirer
       .prompt({
         name: "action",
         type: "rawlist",
         message: "What would you like to do?",
         choices: [
-          "Find product by name",
-          "Find product by department",
-          "Find data within a specific range",
-          "Search for a specific song",
-          "Find artists with a top song and top album in the same year"
+          "View Products for Sale",
+          "View Low Inventory",
+          "Add to Inventory",
+          "Add New Product",
+          "EXIT APP"
         ]
       })
       .then(function(answer) {
         switch (answer.action) {
-        case "Find product by name":
-          productSearch();
+        case "View Products for Sale":
+          showInventory();
           break;
   
-        case "Find product by department":
-          departmentSearch();
+        case "View Low Inventory":
+          showLowInvent();
           break;
-  
-        case "Find product by ":
-          rangeSearch();
+
+        case "Add to Inventory":
+          addInvent();
           break;
-  
-        case "Search for a specific song":
-          songSearch();
+
+        case "Add New Product":
+          addProduct();
           break;
-  
-        case "Find artists with a top song and top album in the same year":
-          songAndAlbumSearch();
+        
+        case "EXIT APP":
+          connection.end();
           break;
         }
       });
   }
+
+  function showInventory() {
+    var query = "SELECT * FROM products";
+    connection.query(query, function(err,res) {
+        if (err) throw err;
+        var productTable = new Table ({
+          head: ["Item ID", "Product Name", "Category", "Price ($)", "Qty"],
+          colWidths: [10, 20, 15, 12, 10]
+        });
+        for (var i = 0; i < res.length; i++) {
+          productTable.push(
+            [res[i].item_id, res[i].product_name, res[i].department_name, res[i].price_dollars, res[i].stock_quantity]
+          );
+        }
+      console.log(productTable.toString());
+      supervisorOptions();
+    });
+}
+
+supervisorOptions();
