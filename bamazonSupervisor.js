@@ -59,6 +59,7 @@ function supervisorOptions() {
         }
       });
   }
+
 //show table of products
   function showInventory() {
     var query = "SELECT * FROM products";
@@ -94,6 +95,41 @@ function showLowInvent() {
     }
     console.log("Showing all items w/ stock quantity < 50")
     console.log(lowInvTable.toString());
+    supervisorOptions();
+  })
+}
+
+//add to inventory
+function addInvent() {
+  inquirer
+  .prompt([
+    {
+      name: "itemIDrestock",
+      type: "input",
+      message: "Item ID of product to restock: ",
+      filter: Number
+    },
+    {
+      name: "qtyRestock",
+      type: "input",
+      message: "How many would you like to add?",
+      filter: Number
+    }
+  ]).then(answers => {
+    restockID = answers.itemIDrestock;
+    restockQty = answers.qtyRestock;
+    executeRestock(restockID, restockQty);
+  });
+
+}
+
+function executeRestock(restockID, restockQty) {
+  connection.query("SELECT stock_qty FROM products WHERE item_id = " + restockID + "; UPDATE products SET stock_quantity = " + restockQty + " + stock_quantity WHERE item_id = " + restockID + ";", function(err, res) {
+    if (err) {
+      console.log(err);
+      throw err;
+    };
+    showInventory();
     supervisorOptions();
   })
 }
