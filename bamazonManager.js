@@ -134,4 +134,30 @@ function executeRestock(restockID, restockQty) {
   })
 }
 
+//add item
+function addProduct() {
+  inquirer
+  .prompt([
+    {
+      name: "itemIDadd",
+      type: "input",
+      message: "What item would you like to add to the store?"
+    },
+    {
+      name: "qtyAdd",
+      type: "input",
+      message: "How many would you like to add?",
+      filter: Number
+    }
+  ]).then(answers => {
+    addID = answers.itemIDadd;
+    addQty = answers.qtyAdd;
+    executeAdd(addID, addQty);
+  })
+
+}
+
+function executeAdd(addID, addQty) {
+  connection.query("")
+}
 supervisorOptions();
