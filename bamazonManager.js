@@ -139,7 +139,7 @@ function addProduct() {
   inquirer
   .prompt([
     {
-      name: "itemIDadd",
+      name: "itemAdd",
       type: "input",
       message: "What item would you like to add to the store?"
     },
@@ -148,16 +148,38 @@ function addProduct() {
       type: "input",
       message: "How many would you like to add?",
       filter: Number
+    },
+    {
+      name: "deptAdd",
+      type: "input",
+      message: "What department does this belong to? (ALL CAPS)"
+    },
+    {
+      name: "priceAdd",
+      type: "input",
+      message: "How much does it cost? (Dollar amount)",
+      filter: Number
     }
-  ]).then(answers => {
-    addID = answers.itemIDadd;
+
+  ]).then( answers => {
+    addID = answers.itemAdd.toString();
     addQty = answers.qtyAdd;
-    executeAdd(addID, addQty);
-  })
+    deptAdd = answers.deptAdd;
+    priceAdd = answers.priceAdd;
+
+    executeAdd(addID, addQty, deptAdd, priceAdd);
+    })
 
 }
 
-function executeAdd(addID, addQty) {
-  connection.query("")
+function executeAdd(addID, addQty, deptAdd, priceAdd) {
+  connection.query("INSERT INTO products (product_name, department_name, price_dollars, stock_quantity) " + "VALUES ('"+ addID+ "', '" + deptAdd + "', '" + priceAdd + "', '" + addQty + "');", function (err, res) {
+    if (err) {
+      throw err;
+    };
+});
+showInventory();
+supervisorOptions();
 }
+
 supervisorOptions();
